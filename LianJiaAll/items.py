@@ -8,8 +8,6 @@ import scrapy
 
 
 class LianjiaallItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
     _id = scrapy.Field()
     province = scrapy.Field()
     city = scrapy.Field()
