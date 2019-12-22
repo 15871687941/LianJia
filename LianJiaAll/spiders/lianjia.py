@@ -3,9 +3,8 @@ import scrapy
 from LianJiaAll.items import LianjiaallItem
 import math
 import uuid
-from threading import RLock
+import copy
 
-lock = RLock()
 
 class LianjiaSpider(scrapy.Spider):
     name = 'lianjia'
@@ -25,12 +24,12 @@ class LianjiaSpider(scrapy.Spider):
                 url = city_ele.xpath("./@href").get()
                 if "fang" in url:
                     continue
-                lock.acquire()
                 item["province"] = province
                 item["city"] = city
-                print(item, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+                # 如果没有深拷贝，就会导致所有的item都会公用一片内存
+                item = copy.deepcopy(item)
                 yield scrapy.Request(url=url, callback=self.parse_city, meta={"item": item})
-                lock.release()
+
 
     def parse_city(self, response):
         item = response.meta["item"]
@@ -49,7 +48,7 @@ class LianjiaSpider(scrapy.Spider):
             url = response.url[0:-12] + block_ele.xpath("./a/@href").get()
             print(url, "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
             item["block"] = block
-            yield scrapy.Request(url=url, callback=self.parse_block_page, meta={"item": item})
+            yield scrapy.Request(url=url, callback=self.parse_block_page, meta={"item": item, "selenium": True})
 
     def parse_block_page(self, response):
         item = response.meta["item"]

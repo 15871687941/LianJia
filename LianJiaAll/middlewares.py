@@ -8,6 +8,11 @@
 from scrapy import signals
 from selenium import webdriver
 from fake_useragent import UserAgent
+from threading import RLock
+from scrapy.http import Response
+import time
+
+lock = RLock()
 
 
 class LianjiaallSpiderMiddleware(object):
@@ -106,50 +111,37 @@ class LianjiaallDownloaderMiddleware(object):
 
 
 class SeleniumPageDownloaderMiddleware(object):
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the downloader middleware does not modify the
-    # passed objects.
     def __init__(self):
         self.chrome = webdriver.Chrome(r"D:\chromedriver\chromedriver.exe")
 
     @classmethod
     def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
     def process_request(self, request, spider):
-        # Called for each request that goes through the downloader
-        # middleware.
+        if request.meta.get("selenium", None):
+            lock.acquire()
+            self.chrome.get(url=request.url)
+            time.sleep(3)
+            html = self.chrome.page_source
+            lock.release()
 
-        # Must either:
-        # - return None: continue processing this request
-        # - or return a Response object
-        # - or return a Request object
-        # - or raise IgnoreRequest: process_exception() methods of
-        #   installed downloader middleware will be called
-        return None
+            url = request.url
+            headers = {}
+            return Response(url=url, body=html.encode(), headers=headers, request=request)
+        else:
+            return None
+
+
+
+
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request object
-        # - or raise IgnoreRequest
-        if "pg1co32" in response.url:
-            self.chrome.get(url=response.url)
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
         pass
 
     def spider_opened(self, spider):
@@ -190,8 +182,8 @@ class UserAgentDownloaderMiddleware(object):
         # - return a Response object
         # - return a Request object
         # - or raise IgnoreRequest
-        if "pg1co32" in response.url:
-            self.chrome.get(url=response.url)
+        # if "pg1co32" in response.url:
+        #     self.chrome.get(url=response.url)
         return response
 
     def process_exception(self, request, exception, spider):

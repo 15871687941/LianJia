@@ -22,15 +22,15 @@ NEWSPIDER_MODULE = 'LianJiaAll.spiders'
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 16
+CONCURRENT_REQUESTS = 100
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 4
+DOWNLOAD_DELAY = 2
 # The download delay setting will honor only one of:
-# CONCURRENT_REQUESTS_PER_DOMAIN = 16
-# CONCURRENT_REQUESTS_PER_IP = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 100
+CONCURRENT_REQUESTS_PER_IP = 0
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -55,6 +55,8 @@ DOWNLOAD_DELAY = 4
 DOWNLOADER_MIDDLEWARES = {
    'LianJiaAll.middlewares.LianjiaallDownloaderMiddleware': 543,
    'LianJiaAll.middlewares.UserAgentDownloaderMiddleware': 100,
+   'LianJiaAll.middlewares.SeleniumPageDownloaderMiddleware': 200,
+
 }
 
 # Enable or disable extensions
@@ -67,7 +69,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'LianJiaAll.pipelines.LianjiaallPipeline': 300,
-   'LianJiaAll.pipelines.SavePipeline': 1000,
+   'LianJiaAll.pipelines.SavePipeline': None,
    'LianJiaAll.pipelines.UniquePipeline': 900,
 }
 
