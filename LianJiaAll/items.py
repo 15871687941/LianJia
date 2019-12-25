@@ -12,5 +12,6 @@ class LianjiaallItem(scrapy.Item):
     type = scrapy.Field()
     area = scrapy.Field()
     price = scrapy.Field()
+    # hello world
     unitPrice = scrapy.Field()
     url = scrapy.Field()
